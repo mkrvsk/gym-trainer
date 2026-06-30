@@ -25,6 +25,15 @@
   header .tag{font-size:12px;color:var(--muted);}
   .pill{font-size:11px;color:var(--accent);background:var(--accent-dim);padding:3px 9px;border-radius:999px;font-weight:600;white-space:nowrap;}
 
+  .chooser{margin-bottom:14px;}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
+  .chip{flex:none;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 13px;text-align:left;min-width:118px;color:var(--text);}
+  .chip:active{opacity:.8;}
+  .chip.sel{border-color:var(--accent);background:var(--accent-dim);}
+  .chip .ct{display:block;font-size:14px;font-weight:600;}
+  .chip .cg{display:block;font-size:11px;color:var(--muted);margin-top:2px;}
+  .chip.sel .cg{color:var(--accent);}
+
   .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;}
   .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600;margin-bottom:10px;}
   .big{font-size:25px;font-weight:700;letter-spacing:-.5px;}
@@ -109,7 +118,7 @@
   <header>
     <div>
       <h1>Gym Trainer</h1>
-      <div class="tag">початківець · набір м'язів · 3×/тиждень</div>
+      <div class="tag">акцент на верх · набір м'язів · 3×/тиж</div>
     </div>
     <div class="pill" id="sessPill"></div>
   </header>
@@ -204,45 +213,59 @@ function genFigure(key){
 
 /* =================== Program (Ukrainian) =================== */
 const WORKOUTS = {
-  A:{ title:"Все тіло A", focus:"Присід + жим/тяга", exercises:[
-    {name:"Гоблет-присід", sets:3, reps:"8-10", anim:"squat", cat:"legs",
-      note:"Гантель біля грудей, сідай назад, коліна назовні.",
-      cues:["Тримай гантель вертикально біля грудей","Сідай так, ніби сідаєш на стілець","Спина рівна, коліна йдуть у бік носків"]},
-    {name:"Жим гантелей лежачи", sets:3, reps:"8-10", anim:"bench", cat:"push",
+  U1:{ title:"Верх — жим", tag:"Верх", focus:"Груди, плечі, трицепс", exercises:[
+    {name:"Жим гантелей лежачи", sets:4, reps:"8-10", anim:"bench", cat:"push",
       note:"Опускай повільно, тисни вгору. Зап'ястки над ліктями.",
       cues:["Лопатки зведені, стопи на підлозі","Опускай гантелі до грудей під контролем","Тисни вгору без ривків"]},
-    {name:"Тяга гантелі однією рукою", sets:3, reps:"10-12", anim:"row", cat:"pull",
-      note:"Рівна спина, тягни гантель до стегна.",
-      cues:["Обіприся вільною рукою об лаву","Спина рівна, не округлюй поперек","Тягни ліктем до стегна, відчуй спину"]},
-    {name:"Жим гантелей над головою", sets:3, reps:"10-12", anim:"press", cat:"push",
+    {name:"Жим гантелей над головою", sets:3, reps:"8-10", anim:"press", cat:"push",
       note:"Тисни вгору без прогину в попереку.",
       cues:["Гантелі на рівні плечей на старті","Тисни строго вгору","Не прогинай поперек — напруж прес"]},
+    {name:"Жим гантелей на нахилі", sets:3, reps:"10-12", anim:"bench", cat:"push",
+      note:"Лава під ~30°. Працює верх грудей.",
+      cues:["Кут лави близько 30 градусів","Опускай до верху грудей","Зводь груди вгорі руху"]},
+    {name:"Розгинання на трицепс", sets:3, reps:"12-15", anim:"curl", cat:"arms",
+      note:"Розгинай лікті повністю, тримай їх на місці.",
+      cues:["Лікті дивляться вперед, не розводь їх","Опускай за голову під контролем","Повне розгинання вгорі"]},
     {name:"Планка", sets:3, reps:"30-45с", anim:"plank", cat:"core", bw:true,
       note:"Пряма лінія від голови до п'ят. Напруж сідниці.",
       cues:["Лікті під плечима","Тіло — пряма лінія, без провисання таза","Дихай рівно, тримай прес у напрузі"]},
   ]},
-  B:{ title:"Все тіло B", focus:"Нахил + вертикальний жим/тяга + руки", exercises:[
-    {name:"Румунська тяга", sets:3, reps:"8-10", anim:"hinge", cat:"legs",
-      note:"М'які коліна, таз назад, відчуй задню поверхню стегна.",
-      cues:["Невеликий згин у колінах, фіксований","Веди таз назад, штанга ковзає по ногах","Спина рівна впродовж усього руху"]},
-    {name:"Жим гантелей на нахилі", sets:3, reps:"8-10", anim:"bench", cat:"push",
-      note:"Лава під ~30°. Працює верх грудей.",
-      cues:["Кут лави близько 30 градусів","Опускай до верху грудей","Зводь груди вгорі руху"]},
-    {name:"Тяга верхнього блоку", sets:3, reps:"10-12", anim:"pulldown", cat:"pull",
+  U2:{ title:"Верх — тяга", tag:"Верх", focus:"Спина, задні дельти, біцепс", exercises:[
+    {name:"Тяга верхнього блоку", sets:4, reps:"8-10", anim:"pulldown", cat:"pull",
       note:"Тягни до верху грудей, повільно відпускай.",
       cues:["Хват трохи ширший за плечі","Тягни лікті вниз до грудей","Контролюй повернення вгору"]},
+    {name:"Тяга гантелі однією рукою", sets:4, reps:"10-12", anim:"row", cat:"pull",
+      note:"Рівна спина, тягни гантель до стегна.",
+      cues:["Обіприся вільною рукою об лаву","Спина рівна, не округлюй поперек","Тягни ліктем до стегна, відчуй спину"]},
+    {name:"Тяга гантелей до пояса", sets:3, reps:"10-12", anim:"row", cat:"pull",
+      note:"Нахилися вперед, тягни обидві гантелі до пояса.",
+      cues:["Корпус нахилений, спина рівна","Тягни лікті назад уздовж тіла","Стискай лопатки вгорі"]},
+    {name:"Згинання на біцепс", sets:3, reps:"12-15", anim:"curl", cat:"arms",
+      note:"Згинай без ривків, лікті притиснуті.",
+      cues:["Лікті притиснуті до боків","Не розгойдуй корпус","Повний діапазон руху"]},
+    {name:"Планка", sets:3, reps:"30-45с", anim:"plank", cat:"core", bw:true,
+      note:"Пряма лінія від голови до п'ят. Напруж сідниці.",
+      cues:["Лікті під плечима","Тіло — пряма лінія, без провисання таза","Дихай рівно, тримай прес у напрузі"]},
+  ]},
+  L:{ title:"Низ + кор", tag:"Низ", focus:"Ноги та корпус", exercises:[
+    {name:"Гоблет-присід", sets:3, reps:"10-12", anim:"squat", cat:"legs",
+      note:"Гантель біля грудей, сідай назад, коліна назовні.",
+      cues:["Тримай гантель вертикально біля грудей","Сідай так, ніби сідаєш на стілець","Спина рівна, коліна йдуть у бік носків"]},
+    {name:"Румунська тяга", sets:3, reps:"10-12", anim:"hinge", cat:"legs",
+      note:"М'які коліна, таз назад, відчуй задню поверхню стегна.",
+      cues:["Невеликий згин у колінах, фіксований","Веди таз назад, штанга ковзає по ногах","Спина рівна впродовж усього руху"]},
     {name:"Випади з кроком", sets:3, reps:"10/ногу", anim:"lunge", cat:"legs",
       note:"Довгий крок, опусти заднє коліно, штовхайся передньою п'ятою.",
       cues:["Роби довгий крок уперед","Опускай заднє коліно майже до підлоги","Вставай через передню п'яту"]},
-    {name:"Біцепс + трицепс (суперсет)", sets:3, reps:"12-15", anim:"curl", cat:"arms",
-      note:"Згинання, потім розгинання на трицепс. Легко й під контролем.",
-      cues:["Лікті притиснуті до боків","Не розгойдуй корпус","Повний діапазон, без ривків"]},
+    {name:"Планка", sets:3, reps:"40с", anim:"plank", cat:"core", bw:true,
+      note:"Пряма лінія від голови до п'ят. Напруж сідниці.",
+      cues:["Лікті під плечима","Тіло — пряма лінія, без провисання таза","Дихай рівно, тримай прес у напрузі"]},
   ]},
 };
-const ROTATION = ["A","B","A","B","A","B"];
+const ROTATION = ["U1","U2","L","U1","U2","L"];
 const CAT_LABEL = {legs:"Ноги", push:"Штовхання", pull:"Тяга", arms:"Руки", core:"Кор"};
 const CAT_COLOR = {legs:"var(--accent)", push:"var(--blue)", pull:"var(--purple)", arms:"var(--amber)", core:"#fb7185"};
-const EXMAP = {}; [...WORKOUTS.A.exercises, ...WORKOUTS.B.exercises].forEach(e=>EXMAP[e.name]=e);
+const EXMAP = {}; Object.values(WORKOUTS).forEach(w=>w.exercises.forEach(e=>EXMAP[e.name]=e));
 
 /* =================== Storage =================== */
 const KEY = "gymTrainerData.v1";
@@ -269,12 +292,24 @@ function updatePill(){ const n=DATA.sessions.length; document.getElementById("se
 
 /* =================== TODAY =================== */
 let draft = null;
+let selectedKey = null;
 
 function renderToday(){
   const n = DATA.sessions.length;
-  const key = draft ? draft.key : workoutKeyFor(n);
+  const recommended = workoutKeyFor(n);
+  if(!draft && !selectedKey) selectedKey = recommended;
+  const key = draft ? draft.key : selectedKey;
   const w = WORKOUTS[key];
-  let html = `<div class="card"><div class="row"><div><div class="sub">Тренування сьогодні</div><div class="big">${w.title}</div></div><div class="pill">${key}</div></div>
+
+  let html = "";
+  if(!draft){
+    html += `<div class="chooser"><div class="sub" style="margin-bottom:8px">Обери тренування</div><div class="chips">`;
+    Object.keys(WORKOUTS).forEach(k=>{ const ww=WORKOUTS[k];
+      html += `<button class="chip ${k===selectedKey?'sel':''}" onclick="selectWorkout('${k}')"><span class="ct">${ww.title}</span><span class="cg">${ww.tag}${k===recommended?' · рекомендовано':''}</span></button>`; });
+    html += `</div></div>`;
+  }
+
+  html += `<div class="card"><div class="row"><div><div class="sub">Тренування сьогодні</div><div class="big">${w.title}</div></div><div class="pill">${w.tag}</div></div>
     <div class="sub" style="margin-top:6px">${w.focus}</div></div>`;
 
   if(!draft){
@@ -335,12 +370,13 @@ function startWorkout(key){
 function addSet(ei){ const arr=draft.exercises[ei].sets; const lastSet=arr[arr.length-1]; arr.push(lastSet?{weight:lastSet.weight,reps:lastSet.reps}:{weight:null,reps:null}); renderToday(); }
 function setVal(ei,si,field,val){ const v=val.trim()===""?null:parseFloat(val); draft.exercises[ei].sets[si][field]=(isNaN(v)?null:v); }
 function bump(ei,si,field,delta){ const cur=draft.exercises[ei].sets[si][field]; let nv=(cur==null?0:cur)+delta; if(nv<0)nv=0; draft.exercises[ei].sets[si][field]=Math.round(nv*100)/100; renderToday(); }
+function selectWorkout(k){ selectedKey=k; renderToday(); }
 function cancelWorkout(){ if(confirm("Скасувати це тренування? Дані не збережуться.")){ draft=null; renderToday(); } }
 function finishWorkout(){
   const logged = draft.exercises.map(e=>({ name:e.name, sets:e.sets.filter(s=>s.weight!=null||s.reps!=null) })).filter(e=>e.sets.length>0);
   if(!logged.length){ toast("Спочатку введи хоча б один підхід"); return; }
   DATA.sessions.push({ date:todayStr(), workout:draft.key, title:WORKOUTS[draft.key].title, exercises:logged });
-  save(DATA); draft=null; updatePill(); toast("Тренування збережено! 🎉"); renderToday();
+  save(DATA); draft=null; selectedKey=null; updatePill(); toast("Тренування збережено! 🎉"); renderToday();
 }
 
 /* =================== exercise demo modal =================== */
