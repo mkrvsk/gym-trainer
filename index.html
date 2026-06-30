@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gym Trainer">
+<meta name="theme-color" content="#0f0f0f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Gym Trainer</title>
+<style>
+  :root{
+    --bg:#0f0f0f; --surface:#1a1a1c; --surface2:#232327; --line:#2e2e33;
+    --text:#f5f5f7; --muted:#9a9aa2; --accent:#34d399; --accent-dim:#10402f;
+    --blue:#60a5fa; --amber:#fbbf24; --danger:#f87171; --purple:#a78bfa;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif;}
+  body{padding:env(safe-area-inset-top) 0 calc(72px + env(safe-area-inset-bottom)) 0;min-height:100vh;line-height:1.5;}
+  .wrap{max-width:560px;margin:0 auto;padding:16px;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:8px 0 16px;}
+  header h1{font-size:20px;font-weight:600;letter-spacing:-.3px;}
+  header .tag{font-size:12px;color:var(--muted);}
+  .pill{font-size:11px;color:var(--accent);background:var(--accent-dim);padding:3px 9px;border-radius:999px;font-weight:600;white-space:nowrap;}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;}
+  .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:600;margin-bottom:10px;}
+  .big{font-size:25px;font-weight:700;letter-spacing:-.5px;}
+  .sub{color:var(--muted);font-size:13px;}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+
+  .ex{border-top:1px solid var(--line);padding:14px 0;display:flex;gap:12px;align-items:flex-start;}
+  .ex:first-of-type{border-top:none;}
+  .ex .info{flex:1;min-width:0;}
+  .ex .name{font-size:15px;font-weight:600;}
+  .ex .target{font-size:12px;color:var(--blue);font-weight:600;white-space:nowrap;}
+  .ex .note{font-size:12.5px;color:var(--muted);margin-top:3px;}
+  .ex .pr{font-size:12px;color:var(--accent);margin-top:4px;}
+
+  .figbtn{flex:none;width:74px;height:84px;background:var(--surface2);border:1px solid var(--line);border-radius:12px;color:var(--accent);display:flex;align-items:center;justify-content:center;position:relative;padding:0;}
+  .figbtn .play{position:absolute;bottom:3px;right:4px;font-size:9px;color:var(--muted);font-weight:600;}
+  .exfig{width:100%;height:100%;}
+
+  .sets{margin-top:12px;display:flex;flex-direction:column;gap:8px;}
+  .setrow{display:flex;align-items:center;gap:8px;}
+  .setrow .lbl{font-size:12px;color:var(--muted);width:50px;flex:none;}
+  .stepper{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:1;}
+  .stepper button{width:36px;height:44px;border:none;background:transparent;color:var(--text);font-size:22px;font-weight:500;flex:none;}
+  .stepper button:active{background:var(--line);}
+  .stepper input{flex:1;min-width:0;text-align:center;background:transparent;border:none;color:var(--text);font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;height:44px;}
+  .stepper input:focus{outline:none;}
+  .stepper .unit{font-size:11px;color:var(--muted);padding-right:9px;}
+
+  button.btn{width:100%;border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:600;background:var(--accent);color:#06281d;margin-top:6px;}
+  button.btn:active{opacity:.85;}
+  button.btn.ghost{background:transparent;color:var(--danger);border:1px solid var(--line);}
+  button.addset{background:transparent;border:1px dashed var(--line);color:var(--muted);border-radius:10px;padding:10px;font-size:13px;font-weight:600;width:100%;margin-top:8px;}
+  .prefill{font-size:11.5px;color:var(--amber);margin-top:8px;}
+
+  /* infographic tiles */
+  .tiles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;}
+  .tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 10px;text-align:center;}
+  .tile .n{font-size:23px;font-weight:700;letter-spacing:-.5px;}
+  .tile .l{font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.25;}
+  .tile.acc .n{color:var(--accent);} .tile.blu .n{color:var(--blue);} .tile.amb .n{color:var(--amber);}
+
+  .bars{display:flex;align-items:flex-end;justify-content:center;gap:8px;height:70px;margin:10px 0 6px;}
+  .bars .col{flex:1;max-width:48px;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;}
+  .bars .b{width:100%;background:var(--accent-dim);border-radius:5px 5px 0 0;min-height:4px;}
+  .bars .b.last{background:var(--accent);}
+  .bars .cl{font-size:9.5px;color:var(--muted);}
+  .trend{font-size:12px;font-weight:600;}
+  .up{color:var(--accent);} .down{color:var(--danger);} .flat{color:var(--muted);}
+
+  .balrow{display:flex;align-items:center;gap:10px;margin:8px 0;}
+  .balrow .lab{font-size:12.5px;width:78px;flex:none;}
+  .balrow .track{flex:1;display:block;height:9px;background:var(--surface2);border-radius:99px;overflow:hidden;}
+  .balrow .fill{display:block;height:9px;border-radius:99px;}
+  .balrow .pct{font-size:11px;color:var(--muted);width:34px;text-align:right;flex:none;}
+
+  .hist{border-top:1px solid var(--line);padding:12px 0;}
+  .hist:first-of-type{border-top:none;}
+  .hist .d{font-size:12px;color:var(--blue);font-weight:600;}
+  .hist .li{font-size:13px;color:var(--muted);}
+
+  nav{position:fixed;bottom:0;left:0;right:0;background:rgba(20,20,22,.94);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:50;}
+  nav button{flex:1;background:none;border:none;color:var(--muted);padding:11px 0 9px;font-size:10px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;}
+  nav button .ic{font-size:20px;line-height:1;}
+  nav button.active{color:var(--accent);}
+  .empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px;}
+
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:90px;background:var(--accent);color:#06281d;padding:11px 18px;border-radius:999px;font-weight:600;font-size:14px;z-index:100;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;z-index:200;padding:0;}
+  .sheet{background:var(--surface);width:100%;max-width:560px;border-radius:20px 20px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom));}
+  .sheet .fig{width:160px;height:180px;margin:0 auto;color:var(--accent);}
+  .sheet h3{font-size:19px;font-weight:600;text-align:center;}
+  .sheet .tg{text-align:center;color:var(--blue);font-weight:600;font-size:13px;margin:2px 0 14px;}
+  .sheet .cue{display:flex;gap:9px;align-items:flex-start;font-size:14px;margin:9px 0;color:var(--text);}
+  .sheet .cue .dot{color:var(--accent);font-weight:700;}
+  .sheet .close{margin-top:16px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Gym Trainer</h1>
+      <div class="tag">початківець · набір м'язів · 3×/тиждень</div>
+    </div>
+    <div class="pill" id="sessPill"></div>
+  </header>
+  <main id="view"></main>
+</div>
+
+<nav>
+  <button data-tab="today" class="active"><span class="ic">🏋</span>Сьогодні</button>
+  <button data-tab="progress"><span class="ic">📈</span>Прогрес</button>
+  <button data-tab="history"><span class="ic">📓</span>Історія</button>
+  <button data-tab="weight"><span class="ic">⚖</span>Вага</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+<div id="modalHost"></div>
+
+<script>
+/* =================== Animated exercise demos (self-contained SVG) =================== */
+/* Each demo is a stick figure whose joints animate between two poses, looping. */
+const SB = [["hip","neck",7],["neck","elbow",5],["elbow","hand",5],["hip","knee",6],["knee","ankle",6],["ankle","toe",5]];
+const GROUND = '<line x1="8" y1="156" x2="122" y2="156" stroke="var(--line)" stroke-width="3" stroke-linecap="round"/>';
+
+const ANIMS = {
+  squat:{ vb:[130,170], dur:2.6, bones:SB, weights:[{at:"hand",type:"dumbbell",r:7}], extras:GROUND,
+    p1:{head:[60,40],neck:[60,52],hip:[60,100],elbow:[52,72],hand:[60,66],knee:[62,126],ankle:[60,154],toe:[74,154]},
+    p2:{head:[50,58],neck:[50,70],hip:[44,114],elbow:[44,86],hand:[52,80],knee:[74,124],ankle:[60,154],toe:[74,154]} },
+
+  press:{ vb:[130,170], dur:2.3, bones:SB, weights:[{at:"hand",type:"dumbbell",r:7}], extras:GROUND,
+    p1:{head:[60,40],neck:[60,52],hip:[60,104],elbow:[46,68],hand:[50,56],knee:[60,128],ankle:[60,156],toe:[72,156]},
+    p2:{head:[60,40],neck:[60,52],hip:[60,104],elbow:[56,44],hand:[60,26],knee:[60,128],ankle:[60,156],toe:[72,156]} },
+
+  curl:{ vb:[120,170], dur:2.2, bones:SB, weights:[{at:"hand",type:"dumbbell",r:7}], extras:GROUND,
+    p1:{head:[58,40],neck:[58,52],hip:[58,104],elbow:[58,78],hand:[62,102],knee:[58,130],ankle:[58,156],toe:[70,156]},
+    p2:{head:[58,40],neck:[58,52],hip:[58,104],elbow:[58,78],hand:[50,60],knee:[58,130],ankle:[58,156],toe:[70,156]} },
+
+  hinge:{ vb:[130,170], dur:2.6, bones:SB, weights:[{at:"hand",type:"bar",w:30}], extras:GROUND,
+    p1:{head:[60,40],neck:[60,52],hip:[60,100],elbow:[60,74],hand:[64,96],knee:[62,126],ankle:[60,154],toe:[74,154]},
+    p2:{head:[34,74],neck:[42,76],hip:[72,98],elbow:[46,96],hand:[52,120],knee:[64,126],ankle:[60,154],toe:[74,154]} },
+
+  row:{ vb:[140,170], dur:2.4, bones:SB, weights:[{at:"hand",type:"dumbbell",r:7}], extras:GROUND,
+    p1:{head:[34,66],neck:[44,74],hip:[84,98],elbow:[50,96],hand:[54,120],knee:[90,126],ankle:[88,154],toe:[100,154]},
+    p2:{head:[34,66],neck:[44,74],hip:[84,98],elbow:[58,86],hand:[72,98],knee:[90,126],ankle:[88,154],toe:[100,154]} },
+
+  bench:{ vb:[140,150], dur:2.2,
+    bones:[["hip","neck",7],["neck","elbow",5],["elbow","hand",5],["hip","knee",6],["knee","ankle",6]],
+    weights:[{at:"hand",type:"bar",w:30}],
+    extras:'<rect x="36" y="118" width="68" height="7" rx="2" fill="var(--surface2)" stroke="var(--line)"/><line x1="44" y1="125" x2="44" y2="146" stroke="var(--line)" stroke-width="3"/><line x1="96" y1="125" x2="96" y2="146" stroke="var(--line)" stroke-width="3"/><line x1="14" y1="146" x2="128" y2="146" stroke="var(--line)" stroke-width="3" stroke-linecap="round"/>',
+    p1:{head:[40,111],neck:[52,113],hip:[92,114],knee:[112,118],ankle:[122,132],elbow:[54,116],hand:[57,109]},
+    p2:{head:[40,111],neck:[52,113],hip:[92,114],knee:[112,118],ankle:[122,132],elbow:[56,96],hand:[58,84]} },
+
+  pulldown:{ vb:[140,170], dur:2.4,
+    bones:[["pulley","hand",2],["hip","neck",7],["neck","elbow",5],["elbow","hand",5],["hip","knee",6],["knee","ankle",6]],
+    weights:[{at:"hand",type:"bar",w:34}],
+    extras:'<rect x="34" y="118" width="60" height="7" rx="2" fill="var(--surface2)" stroke="var(--line)"/><line x1="14" y1="150" x2="128" y2="150" stroke="var(--line)" stroke-width="3" stroke-linecap="round"/><circle cx="60" cy="8" r="3" fill="var(--line)"/>',
+    p1:{pulley:[60,8],head:[60,60],neck:[60,72],hip:[60,114],elbow:[54,58],hand:[58,40],knee:[92,114],ankle:[92,148]},
+    p2:{pulley:[60,8],head:[60,60],neck:[60,72],hip:[60,114],elbow:[44,76],hand:[58,74],knee:[92,114],ankle:[92,148]} },
+
+  lunge:{ vb:[140,170], dur:2.8,
+    bones:[["hip","neck",7],["neck","elbow",5],["elbow","hand",5],["hip","knee",6],["knee","ankle",6],["ankle","toe",5],["hip","knee2",6],["knee2","ankle2",6],["ankle2","toe2",5]],
+    weights:[{at:"hand",type:"dumbbell",r:7}], extras:GROUND,
+    p1:{head:[60,40],neck:[60,52],hip:[60,100],elbow:[60,74],hand:[64,96],knee:[58,126],ankle:[58,154],toe:[70,154],knee2:[62,126],ankle2:[62,154],toe2:[74,154]},
+    p2:{head:[58,52],neck:[58,64],hip:[58,112],elbow:[58,86],hand:[62,108],knee:[84,126],ankle:[84,154],toe:[96,154],knee2:[40,138],ankle2:[28,154],toe2:[40,154]} },
+
+  plank:{ vb:[150,110], dur:3.2,
+    bones:[["hip","neck",7],["neck","elbow",5],["elbow","hand",5],["hip","knee",6],["knee","ankle",6],["ankle","toe",5]],
+    extras:'<line x1="8" y1="98" x2="142" y2="98" stroke="var(--line)" stroke-width="3" stroke-linecap="round"/>',
+    p1:{head:[36,76],neck:[44,80],hip:[92,86],elbow:[34,96],hand:[24,98],knee:[114,90],ankle:[132,94],toe:[140,97]},
+    p2:{head:[34,72],neck:[42,76],hip:[92,82],elbow:[34,96],hand:[24,98],knee:[114,87],ankle:[132,92],toe:[140,96]} },
+};
+
+function genFigure(key){
+  const A = ANIMS[key]; if(!A) return "";
+  const dur = A.dur || 2.4;
+  const va = (j,i)=>`${A.p1[j][i]};${A.p2[j][i]};${A.p1[j][i]}`;
+  const anim = (attr,vals)=>`<animate attributeName="${attr}" values="${vals}" dur="${dur}s" repeatCount="indefinite"/>`;
+  const seg = (a,b,w)=>`<line stroke="currentColor" stroke-width="${w||6}" stroke-linecap="round" x1="${A.p1[a][0]}" y1="${A.p1[a][1]}" x2="${A.p1[b][0]}" y2="${A.p1[b][1]}">`
+      + anim("x1",va(a,0)) + anim("y1",va(a,1)) + anim("x2",va(b,0)) + anim("y2",va(b,1)) + `</line>`;
+  const head = (j)=>`<circle r="8" fill="currentColor" cx="${A.p1[j][0]}" cy="${A.p1[j][1]}">`+anim("cx",va(j,0))+anim("cy",va(j,1))+`</circle>`;
+  const weight = (w)=>{
+    const j=w.at;
+    if(w.type==="bar"){ const half=(w.w||30)/2; const x1=A.p1[j][0]-half, x2=A.p2[j][0]-half;
+      return `<rect width="${w.w||30}" height="6" rx="3" fill="var(--accent)" x="${x1}" y="${A.p1[j][1]-3}">`
+        + anim("x",`${x1};${x2};${x1}`) + anim("y",`${A.p1[j][1]-3};${A.p2[j][1]-3};${A.p1[j][1]-3}`) + `</rect>`; }
+    return `<circle r="${w.r||6.5}" fill="var(--accent)" cx="${A.p1[j][0]}" cy="${A.p1[j][1]}">`+anim("cx",va(j,0))+anim("cy",va(j,1))+`</circle>`;
+  };
+  let inner = (A.extras||"") + A.bones.map(b=>seg(b[0],b[1],b[2])).join("");
+  inner += (A.p1.head ? head("head") : "");
+  inner += (A.weights||[]).map(weight).join("");
+  const vb = A.vb || [130,170];
+  return `<svg viewBox="0 0 ${vb[0]} ${vb[1]}" class="exfig" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="демонстрація вправи">${inner}</svg>`;
+}
+
+/* =================== Program (Ukrainian) =================== */
+const WORKOUTS = {
+  A:{ title:"Все тіло A", focus:"Присід + жим/тяга", exercises:[
+    {name:"Гоблет-присід", sets:3, reps:"8-10", anim:"squat", cat:"legs",
+      note:"Гантель біля грудей, сідай назад, коліна назовні.",
+      cues:["Тримай гантель вертикально біля грудей","Сідай так, ніби сідаєш на стілець","Спина рівна, коліна йдуть у бік носків"]},
+    {name:"Жим гантелей лежачи", sets:3, reps:"8-10", anim:"bench", cat:"push",
+      note:"Опускай повільно, тисни вгору. Зап'ястки над ліктями.",
+      cues:["Лопатки зведені, стопи на підлозі","Опускай гантелі до грудей під контролем","Тисни вгору без ривків"]},
+    {name:"Тяга гантелі однією рукою", sets:3, reps:"10-12", anim:"row", cat:"pull",
+      note:"Рівна спина, тягни гантель до стегна.",
+      cues:["Обіприся вільною рукою об лаву","Спина рівна, не округлюй поперек","Тягни ліктем до стегна, відчуй спину"]},
+    {name:"Жим гантелей над головою", sets:3, reps:"10-12", anim:"press", cat:"push",
+      note:"Тисни вгору без прогину в попереку.",
+      cues:["Гантелі на рівні плечей на старті","Тисни строго вгору","Не прогинай поперек — напруж прес"]},
+    {name:"Планка", sets:3, reps:"30-45с", anim:"plank", cat:"core", bw:true,
+      note:"Пряма лінія від голови до п'ят. Напруж сідниці.",
+      cues:["Лікті під плечима","Тіло — пряма лінія, без провисання таза","Дихай рівно, тримай прес у напрузі"]},
+  ]},
+  B:{ title:"Все тіло B", focus:"Нахил + вертикальний жим/тяга + руки", exercises:[
+    {name:"Румунська тяга", sets:3, reps:"8-10", anim:"hinge", cat:"legs",
+      note:"М'які коліна, таз назад, відчуй задню поверхню стегна.",
+      cues:["Невеликий згин у колінах, фіксований","Веди таз назад, штанга ковзає по ногах","Спина рівна впродовж усього руху"]},
+    {name:"Жим гантелей на нахилі", sets:3, reps:"8-10", anim:"bench", cat:"push",
+      note:"Лава під ~30°. Працює верх грудей.",
+      cues:["Кут лави близько 30 градусів","Опускай до верху грудей","Зводь груди вгорі руху"]},
+    {name:"Тяга верхнього блоку", sets:3, reps:"10-12", anim:"pulldown", cat:"pull",
+      note:"Тягни до верху грудей, повільно відпускай.",
+      cues:["Хват трохи ширший за плечі","Тягни лікті вниз до грудей","Контролюй повернення вгору"]},
+    {name:"Випади з кроком", sets:3, reps:"10/ногу", anim:"lunge", cat:"legs",
+      note:"Довгий крок, опусти заднє коліно, штовхайся передньою п'ятою.",
+      cues:["Роби довгий крок уперед","Опускай заднє коліно майже до підлоги","Вставай через передню п'яту"]},
+    {name:"Біцепс + трицепс (суперсет)", sets:3, reps:"12-15", anim:"curl", cat:"arms",
+      note:"Згинання, потім розгинання на трицепс. Легко й під контролем.",
+      cues:["Лікті притиснуті до боків","Не розгойдуй корпус","Повний діапазон, без ривків"]},
+  ]},
+};
+const ROTATION = ["A","B","A","B","A","B"];
+const CAT_LABEL = {legs:"Ноги", push:"Штовхання", pull:"Тяга", arms:"Руки", core:"Кор"};
+const CAT_COLOR = {legs:"var(--accent)", push:"var(--blue)", pull:"var(--purple)", arms:"var(--amber)", core:"#fb7185"};
+const EXMAP = {}; [...WORKOUTS.A.exercises, ...WORKOUTS.B.exercises].forEach(e=>EXMAP[e.name]=e);
+
+/* =================== Storage =================== */
+const KEY = "gymTrainerData.v1";
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {sessions:[],bodyweight:[]}; }catch(e){ return {sessions:[],bodyweight:[]}; } }
+function save(d){ localStorage.setItem(KEY, JSON.stringify(d)); }
+let DATA = load();
+
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function workoutKeyFor(n){ return ROTATION[n % ROTATION.length]; }
+function bestSet(name){ let best=null; for(const s of DATA.sessions) for(const e of s.exercises) if(e.name===name) for(const st of e.sets){ if(st.weight==null)continue; if(!best||st.weight>best.weight) best={weight:st.weight,reps:st.reps,date:s.date}; } return best; }
+function lastPerf(name){ for(let i=DATA.sessions.length-1;i>=0;i--){ for(const e of DATA.sessions[i].exercises) if(e.name===name && e.sets.length) return {date:DATA.sessions[i].date, sets:e.sets}; } return null; }
+function topSetHistory(name){ const h=[]; for(const s of DATA.sessions){ let top=null; for(const e of s.exercises) if(e.name===name) for(const st of e.sets){ if(st.weight==null)continue; if(!top||st.weight>top.weight) top={weight:st.weight,reps:st.reps}; } if(top) h.push(top);} return h; }
+function sessionVolume(s){ return s.exercises.reduce((a,e)=>a+e.sets.reduce((b,st)=>b+((st.weight||0)*(st.reps||0)),0),0); }
+
+/* =================== helpers =================== */
+const view = document.getElementById("view");
+const toastEl = document.getElementById("toast");
+let toastTimer;
+function toast(msg){ toastEl.textContent=msg; toastEl.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>toastEl.classList.remove("show"),1700); }
+function fmtSet(s){ const w = s.weight==null ? "—" : (s.weight+"кг"); return s.reps==null ? w : w+"×"+s.reps; }
+function plural(n,f){ const m=Math.abs(n)%100, n1=m%10; if(m>10&&m<20)return f[2]; if(n1>1&&n1<5)return f[1]; if(n1===1)return f[0]; return f[2]; }
+function sessWord(n){ return plural(n,["тренування","тренування","тренувань"]); }
+function updatePill(){ const n=DATA.sessions.length; document.getElementById("sessPill").textContent = n+" "+sessWord(n); }
+
+/* =================== TODAY =================== */
+let draft = null;
+
+function renderToday(){
+  const n = DATA.sessions.length;
+  const key = draft ? draft.key : workoutKeyFor(n);
+  const w = WORKOUTS[key];
+  let html = `<div class="card"><div class="row"><div><div class="sub">Тренування сьогодні</div><div class="big">${w.title}</div></div><div class="pill">${key}</div></div>
+    <div class="sub" style="margin-top:6px">${w.focus}</div></div>`;
+
+  if(!draft){
+    html += `<button class="btn" onclick="startWorkout('${key}')">Почати тренування</button>`;
+    html += `<div class="card" style="margin-top:14px"><h2>Що робимо · тисни на фігурку</h2>`;
+    w.exercises.forEach(e=>{
+      const b=bestSet(e.name);
+      html += `<div class="ex">
+        <button class="figbtn" onclick="openDemo('${e.name}')">${genFigure(e.anim)}<span class="play">як саме ▸</span></button>
+        <div class="info"><div class="row"><span class="name">${e.name}</span><span class="target">${e.sets}×${e.reps}</span></div>
+        <div class="note">${e.note}</div>${b?`<div class="pr">Рекорд: ${b.weight}кг×${b.reps}</div>`:``}</div></div>`;
+    });
+    html += `</div>`;
+  } else {
+    let anyPrefill=false;
+    w.exercises.forEach((e,ei)=>{
+      const last = lastPerf(e.name);
+      if(last) anyPrefill=true;
+      html += `<div class="card"><div class="ex" style="border:none;padding:0">
+        <button class="figbtn" onclick="openDemo('${e.name}')">${genFigure(e.anim)}<span class="play">техніка ▸</span></button>
+        <div class="info"><div class="row"><span class="name">${e.name}</span><span class="target">ціль ${e.sets}×${e.reps}</span></div>
+        <div class="note">${e.note}</div></div></div>`;
+      if(last){ html += `<div class="prefill">↻ Підставив минулі ваги (${last.date}). Спробуй додати повторення або трохи ваги 💪</div>`; }
+      html += `<div class="sets" id="sets-${ei}">`;
+      draft.exercises[ei].sets.forEach((st,si)=> html += setRowHTML(ei,si,st,e.bw));
+      html += `</div><button class="addset" onclick="addSet(${ei})">+ підхід</button></div>`;
+    });
+    html += `<button class="btn" onclick="finishWorkout()">Завершити та зберегти</button>
+             <button class="btn ghost" onclick="cancelWorkout()">Скасувати</button>`;
+  }
+  view.innerHTML = html;
+}
+
+function setRowHTML(ei,si,st,bw){
+  const step = bw ? 5 : 2.5;
+  const unit = bw ? "сек" : "кг";
+  const wPlaceholder = bw ? "сек" : "кг";
+  const wField = `<div class="stepper"><button onclick="bump(${ei},${si},'weight',-${step})">−</button>
+      <input inputmode="decimal" value="${st.weight==null?'':st.weight}" placeholder="${wPlaceholder}" onchange="setVal(${ei},${si},'weight',this.value)"><span class="unit">${unit}</span>
+      <button onclick="bump(${ei},${si},'weight',${step})">+</button></div>`;
+  return `<div class="setrow"><span class="lbl">Підхід ${si+1}</span>${wField}
+    <div class="stepper"><button onclick="bump(${ei},${si},'reps',-1)">−</button>
+      <input inputmode="numeric" value="${st.reps==null?'':st.reps}" placeholder="повт." onchange="setVal(${ei},${si},'reps',this.value)"><span class="unit">повт.</span>
+      <button onclick="bump(${ei},${si},'reps',1)">+</button></div></div>`;
+}
+
+function startWorkout(key){
+  draft = { key, exercises: WORKOUTS[key].exercises.map(e=>{
+    const last = lastPerf(e.name);
+    const sets = Array.from({length:e.sets}, (_,i)=>{
+      const prev = last && last.sets[i];
+      return prev ? {weight:prev.weight, reps:prev.reps} : {weight:null, reps:null};
+    });
+    return { name:e.name, sets };
+  })};
+  renderToday();
+}
+function addSet(ei){ const arr=draft.exercises[ei].sets; const lastSet=arr[arr.length-1]; arr.push(lastSet?{weight:lastSet.weight,reps:lastSet.reps}:{weight:null,reps:null}); renderToday(); }
+function setVal(ei,si,field,val){ const v=val.trim()===""?null:parseFloat(val); draft.exercises[ei].sets[si][field]=(isNaN(v)?null:v); }
+function bump(ei,si,field,delta){ const cur=draft.exercises[ei].sets[si][field]; let nv=(cur==null?0:cur)+delta; if(nv<0)nv=0; draft.exercises[ei].sets[si][field]=Math.round(nv*100)/100; renderToday(); }
+function cancelWorkout(){ if(confirm("Скасувати це тренування? Дані не збережуться.")){ draft=null; renderToday(); } }
+function finishWorkout(){
+  const logged = draft.exercises.map(e=>({ name:e.name, sets:e.sets.filter(s=>s.weight!=null||s.reps!=null) })).filter(e=>e.sets.length>0);
+  if(!logged.length){ toast("Спочатку введи хоча б один підхід"); return; }
+  DATA.sessions.push({ date:todayStr(), workout:draft.key, title:WORKOUTS[draft.key].title, exercises:logged });
+  save(DATA); draft=null; updatePill(); toast("Тренування збережено! 🎉"); renderToday();
+}
+
+/* =================== exercise demo modal =================== */
+function openDemo(name){
+  const e = EXMAP[name]; if(!e) return;
+  const cues = (e.cues||[e.note]).map(c=>`<div class="cue"><span class="dot">▸</span><span>${c}</span></div>`).join("");
+  document.getElementById("modalHost").innerHTML =
+    `<div class="modal" onclick="if(event.target===this)closeDemo()"><div class="sheet">
+      <div class="fig">${genFigure(e.anim)}</div>
+      <h3>${e.name}</h3><div class="tg">${e.sets}×${e.reps}</div>
+      ${cues}
+      <button class="btn close" onclick="closeDemo()">Зрозуміло</button>
+    </div></div>`;
+}
+function closeDemo(){ document.getElementById("modalHost").innerHTML=""; }
+
+/* =================== PROGRESS (infographics + per-exercise) =================== */
+function isoWeek(dateStr){ const d=new Date(dateStr+"T00:00:00"); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day+3); const firstThu=new Date(d.getFullYear(),0,4); const w=1+Math.round((d-firstThu)/604800000); return d.getFullYear()+"-"+(w<10?"0"+w:w); }
+
+function renderProgress(){
+  if(!DATA.sessions.length){ view.innerHTML = emptyHTML("Ще немає даних","Перейди на «Сьогодні» і запиши перше тренування — тут зʼявиться статистика."); return; }
+  const total = DATA.sessions.length;
+  const totalVol = Math.round(DATA.sessions.reduce((a,s)=>a+sessionVolume(s),0));
+  const thisWeek = isoWeek(todayStr());
+  const weekCount = DATA.sessions.filter(s=>isoWeek(s.date)===thisWeek).length;
+
+  let html = `<div class="tiles">
+    <div class="tile acc"><div class="n">${total}</div><div class="l">${sessWord(total)}</div></div>
+    <div class="tile blu"><div class="n">${totalVol>=1000?(totalVol/1000).toFixed(1)+"т":totalVol}</div><div class="l">загальний обʼєм, кг</div></div>
+    <div class="tile amb"><div class="n">${weekCount}</div><div class="l">цього тижня</div></div>
+  </div>`;
+
+  /* weekly volume bar chart (last 6 weeks present in data) */
+  const byWeek = {};
+  DATA.sessions.forEach(s=>{ const w=isoWeek(s.date); byWeek[w]=(byWeek[w]||0)+sessionVolume(s); });
+  const weeks = Object.keys(byWeek).sort().slice(-6);
+  if(weeks.length){
+    const max = Math.max(...weeks.map(w=>byWeek[w]),1);
+    let bars = `<div class="bars">`;
+    weeks.forEach((w,i)=>{ const pct=Math.max(6, byWeek[w]/max*100); bars+=`<div class="col"><div class="b ${i===weeks.length-1?'last':''}" style="height:${pct}%"></div><div class="cl">${w.split("-")[1]} тиж</div></div>`; });
+    bars += `</div>`;
+    html += `<div class="card"><h2>Обʼєм за тиждень (кг)</h2>${bars}</div>`;
+  }
+
+  /* movement balance */
+  const cat = {};
+  DATA.sessions.forEach(s=>s.exercises.forEach(e=>{ const c=(EXMAP[e.name]||{}).cat||"other"; const v=e.sets.reduce((b,st)=>b+((st.weight||0)*(st.reps||0))||1,0); const sets=e.sets.length; cat[c]=(cat[c]||0)+sets; }));
+  const catTotal = Object.values(cat).reduce((a,b)=>a+b,0)||1;
+  let bal = "";
+  Object.keys(CAT_LABEL).forEach(c=>{ if(!cat[c])return; const pct=Math.round(cat[c]/catTotal*100); bal+=`<div class="balrow"><span class="lab">${CAT_LABEL[c]}</span><span class="track"><span class="fill" style="width:${pct}%;background:${CAT_COLOR[c]}"></span></span><span class="pct">${pct}%</span></div>`; });
+  if(bal) html += `<div class="card"><h2>Баланс рухів (за підходами)</h2>${bal}</div>`;
+
+  /* per-exercise strength trends */
+  const names=[]; DATA.sessions.forEach(s=>s.exercises.forEach(e=>{ if(!names.includes(e.name))names.push(e.name); }));
+  let trends="";
+  names.forEach(name=>{
+    const h=topSetHistory(name); if(h.length<1)return;
+    const first=h[0].weight, last=h[h.length-1].weight, d=Math.round((last-first)*10)/10;
+    const cls=d>0?"up":(d<0?"down":"flat"), arrow=d>0?"▲":(d<0?"▼":"=");
+    const max=Math.max(...h.map(x=>x.weight),1);
+    let bars=`<div class="bars">`;
+    h.forEach((x,i)=>{ const pct=Math.max(8,x.weight/max*100); bars+=`<div class="col"><div class="b ${i===h.length-1?'last':''}" style="height:${pct}%"></div></div>`; });
+    bars+=`</div>`;
+    trends += `<div class="card"><div class="row"><span class="name">${name}</span><span class="trend ${cls}">${arrow} ${d>0?'+':''}${d}кг</span></div>${bars}<div class="sub">${first}кг → ${last}кг · ${h.length} ${sessWord(h.length)}</div></div>`;
+  });
+  if(trends) html += `<div class="card" style="background:none;border:none;padding:0;margin:0"><h2 style="padding:0 2px">Сила по вправах</h2></div>` + trends;
+
+  view.innerHTML = html;
+}
+
+/* =================== HISTORY =================== */
+function renderHistory(){
+  if(!DATA.sessions.length){ view.innerHTML = emptyHTML("Поки порожньо","Завершені тренування зʼявляться тут."); return; }
+  let html=`<div class="card"><h2>Історія тренувань</h2>`;
+  [...DATA.sessions].reverse().forEach(s=>{
+    html+=`<div class="hist"><div class="d">${s.date} · ${s.title} · обʼєм ${Math.round(sessionVolume(s))}кг</div>`;
+    s.exercises.forEach(e=> html+=`<div class="name" style="font-size:14px;margin-top:4px">${e.name}</div><div class="li">${e.sets.map(fmtSet).join(", ")}</div>`);
+    html+=`</div>`;
+  });
+  html+=`</div><button class="btn ghost" onclick="resetAll()">Очистити всі дані</button>`;
+  view.innerHTML=html;
+}
+function resetAll(){ if(confirm("Видалити ВСІ дані тренувань і ваги? Це не можна скасувати.")){ DATA={sessions:[],bodyweight:[]}; save(DATA); updatePill(); toast("Дані очищено"); renderHistory(); } }
+
+/* =================== WEIGHT =================== */
+function renderWeight(){
+  const lastKg = DATA.bodyweight.length?DATA.bodyweight[DATA.bodyweight.length-1].kg:"";
+  let html=`<div class="card"><h2>Записати вагу тіла</h2>
+    <div class="setrow"><div class="stepper"><button onclick="bumpBW(-0.5)">−</button>
+      <input id="bwInput" inputmode="decimal" placeholder="кг" value="${lastKg}"><span class="unit">кг</span>
+      <button onclick="bumpBW(0.5)">+</button></div></div>
+    <button class="btn" style="margin-top:10px" onclick="logBW()">Зберегти вагу</button></div>`;
+  if(DATA.bodyweight.length){
+    const ws=DATA.bodyweight.map(b=>b.kg), max=Math.max(...ws), min=Math.min(...ws);
+    let bars=`<div class="bars">`;
+    DATA.bodyweight.slice(-12).forEach((b,i,arr)=>{ const pct=max===min?60:Math.max(8,(b.kg-min)/(max-min)*100); bars+=`<div class="col"><div class="b ${i===arr.length-1?'last':''}" style="height:${pct}%"></div></div>`; });
+    bars+=`</div>`;
+    const change=Math.round((ws[ws.length-1]-ws[0])*10)/10;
+    html+=`<div class="card"><h2>Динаміка</h2>${bars}<div class="sub">${change>=0?'+':''}${change} кг за ${ws.length} ${plural(ws.length,["запис","записи","записів"])}</div>`;
+    [...DATA.bodyweight].reverse().slice(0,8).forEach(b=> html+=`<div class="row" style="padding:7px 0;border-top:1px solid var(--line)"><span class="li">${b.date}</span><span style="font-weight:600">${b.kg} кг</span></div>`);
+    html+=`</div>`;
+  }
+  view.innerHTML=html;
+}
+function bumpBW(d){ const el=document.getElementById("bwInput"); const cur=parseFloat(el.value)||0; el.value=Math.round((cur+d)*10)/10; }
+function logBW(){ const v=parseFloat(document.getElementById("bwInput").value); if(isNaN(v)||v<=0){ toast("Введи вагу"); return; } DATA.bodyweight.push({date:todayStr(),kg:v}); save(DATA); toast("Вагу збережено"); renderWeight(); }
+
+/* =================== shared =================== */
+function emptyHTML(t,s){ return `<div class="card"><div class="empty"><div style="font-size:17px;font-weight:600;color:var(--text)">${t}</div><div style="margin-top:6px">${s}</div></div></div>`; }
+const TABS = { today:renderToday, progress:renderProgress, history:renderHistory, weight:renderWeight };
+document.querySelectorAll("nav button").forEach(btn=>{
+  btn.addEventListener("click",()=>{ document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active")); btn.classList.add("active"); TABS[btn.dataset.tab](); });
+});
+
+updatePill();
+renderToday();
+
+/* register service worker for offline / installable app (needs HTTPS or localhost) */
+if("serviceWorker" in navigator){ window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{})); }
+</script>
+</body>
+</html>
