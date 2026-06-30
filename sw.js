@@ -1,6 +1,6 @@
 /* Service worker: caches the app shell so it works fully offline.
    Bump CACHE when you change app files to force clients to refresh. */
-const CACHE = "gym-trainer-v2";
+const CACHE = "gym-trainer-v3";
 const ASSETS = [
   "./",
   "./index.html",
